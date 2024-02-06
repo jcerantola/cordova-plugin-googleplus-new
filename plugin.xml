@@ -108,7 +108,7 @@
       </config>
       <pods use-frameworks="true">
         <pod name="GoogleSignIn" spec="~> 6.2.0"/>
-        <pod name="GoogleUtilities" spec="~> 7.10.0"/>
+        <pod name="GoogleUtilities" spec="~> 7.11.4"/>
       </pods>
     </podspec>
 
