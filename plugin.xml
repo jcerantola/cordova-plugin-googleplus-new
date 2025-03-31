@@ -81,6 +81,24 @@
       </array>
     </config-file>
 
+<config-file target="*-Debug.entitlements" parent="com.apple.developer.sso" merge="merge">
+    <array>
+        <string>com.google.sso</string>
+    </array>
+</config-file>
+<config-file target="*-Release.entitlements" parent="com.apple.developer.sso" merge="merge">
+    <array>
+        <string>com.google.sso</string>
+    </array>
+</config-file>
+
+	  <config-file target="*-Debug.entitlements" parent="aps-environment" merge="merge">
+    <string>development</string>
+</config-file>
+<config-file target="*-Release.entitlements" parent="aps-environment" merge="merge">
+    <string>production</string>
+</config-file>
+
     <config-file parent="keychain-access-groups" target="*/Entitlements-Debug.plist">
       <array>
         <string>$(AppIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)</string>
