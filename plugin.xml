@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-plugin-googleplus"
-        version="8.5.3">
+        version="8.5.3-cli">
 
   <name>Google SignIn</name>
 
@@ -30,7 +30,7 @@
   <!-- android -->
   <platform name="android">
 
-	<preference name="PLAY_SERVICES_VERSION" default="15.0.1"/>
+	<preference name="PLAY_SERVICES_VERSION" default="21.0.1"/>
     <framework src="com.google.android.gms:play-services-auth:$PLAY_SERVICES_VERSION" />
     <framework src="com.google.android.gms:play-services-identity:$PLAY_SERVICES_VERSION" />
 
@@ -110,6 +110,22 @@
       </array>
     </config-file>
 
+<config-file target="project.pbxproj" parent="/* Begin XCBuildConfiguration section */">
+  <build-config>
+    <name>Debug</name>
+    <build-settings>
+      <LD_RUNPATH_SEARCH_PATHS>$(inherited) @executable_path/Frameworks</LD_RUNPATH_SEARCH_PATHS>
+    </build-settings>
+  </build-config>
+  <build-config>
+    <name>Release</name>
+    <build-settings>
+      <LD_RUNPATH_SEARCH_PATHS>$(inherited) @executable_path/Frameworks</LD_RUNPATH_SEARCH_PATHS>
+    </build-settings>
+  </build-config>
+</config-file>
+
+
     <!-- System frameworks -->
     <framework src="AddressBook.framework" weak="true" />
     <framework src="CoreText.framework" weak="true" />
@@ -120,8 +136,8 @@
     <framework src="libz.dylib" weak="true" />
 
     <!-- Google frameworks -->
-    <preference name="GOOGLE_SIGN_IN_VERSION" default="~> 6.2.0"/>
-    <preference name="GOOGLE_UTILITIES_VERSION" default="~> 7.11.4"/>
+    <preference name="GOOGLE_SIGN_IN_VERSION" default="~> 7.1.0"/>
+    <preference name="GOOGLE_UTILITIES_VERSION" default="~> 7.13.0"/>
     <podspec>
       <config>
         <source url="https://cdn.cocoapods.org/"/>
