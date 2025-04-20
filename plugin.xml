@@ -110,22 +110,6 @@
       </array>
     </config-file>
 
-<config-file target="project.pbxproj" parent="/* Begin XCBuildConfiguration section */">
-  <build-config>
-    <name>Debug</name>
-    <build-settings>
-      <LD_RUNPATH_SEARCH_PATHS>$(inherited) @executable_path/Frameworks</LD_RUNPATH_SEARCH_PATHS>
-    </build-settings>
-  </build-config>
-  <build-config>
-    <name>Release</name>
-    <build-settings>
-      <LD_RUNPATH_SEARCH_PATHS>$(inherited) @executable_path/Frameworks</LD_RUNPATH_SEARCH_PATHS>
-    </build-settings>
-  </build-config>
-</config-file>
-
-
     <!-- System frameworks -->
     <framework src="AddressBook.framework" weak="true" />
     <framework src="CoreText.framework" weak="true" />
