@@ -32,22 +32,77 @@
     <source-file src="src/android/GooglePlus.java" target-dir="src/nl/xservices/plugins"/>
   </platform>
 
-  <platform name="ios">
+  <!-- iOS Platform -->
+<platform name="ios">
+
   <config-file target="config.xml" parent="/*">
     <feature name="GooglePlus">
       <param name="ios-package" value="GooglePlus" />
     </feature>
+    <access origin="https://accounts.google.com/*" />
   </config-file>
 
-  <pod name="GoogleSignIn" spec="7.0.0" />
-  <pod name="GTMSessionFetcher" spec="~> 1.7" />
-  <pod name="GoogleUtilities" spec="~> 7.13.3" />
+  <header-file src="src/ios/GooglePlus.h"/>
+  <source-file src="src/ios/GooglePlus.m"/>
 
+  <!-- Reverso do client ID -->
+  <preference name="REVERSED_CLIENT_ID" />
+
+  <config-file target="*-Info.plist" parent="CFBundleURLTypes">
+    <array>
+      <dict>
+        <key>CFBundleTypeRole</key>
+        <string>Editor</string>
+        <key>CFBundleURLName</key>
+        <string>REVERSED_CLIENT_ID</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+          <string>$REVERSED_CLIENT_ID</string>
+        </array>
+      </dict>
+    </array>
+  </config-file>
+
+  <config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
+    <array>
+      <string>com.googleusercontent.apps</string>
+    </array>
+  </config-file>
+
+  <config-file target="*-Debug.entitlements" parent="com.apple.developer.sso" merge="merge">
+    <array>
+      <string>com.google.sso</string>
+    </array>
+  </config-file>
+  <config-file target="*-Release.entitlements" parent="com.apple.developer.sso" merge="merge">
+    <array>
+      <string>com.google.sso</string>
+    </array>
+  </config-file>
+
+  <config-file parent="keychain-access-groups" target="*/Entitlements-Debug.plist">
+    <array>
+      <string>$(AppIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    </array>
+  </config-file>
+  <config-file parent="keychain-access-groups" target="*/Entitlements-Release.plist">
+    <array>
+      <string>$(AppIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    </array>
+  </config-file>
+
+  <!-- Google SignIn Pods -->
+  <pod name="GoogleSignIn" spec="7.0.0" />
+  <pod name="GoogleUtilities" spec="~> 7.13.3" />
+  <pod name="GTMSessionFetcher" spec="~> 1.7" />
+
+  <!-- Frameworks necessários -->
   <framework src="SafariServices.framework" />
   <framework src="SystemConfiguration.framework" />
   <framework src="CoreGraphics.framework" />
   <framework src="UIKit.framework" />
   <framework src="Foundation.framework" />
 </platform>
+
 
 </plugin>
