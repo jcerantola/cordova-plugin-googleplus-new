@@ -33,31 +33,21 @@
   </platform>
 
   <platform name="ios">
-    <config-file target="config.xml" parent="/*">
-      <feature name="GooglePlus">
-        <param name="ios-package" value="GooglePlus"/>
-        <param name="onload" value="true"/>
-      </feature>
-      <access origin="https://accounts.google.com/*"/>
-    </config-file>
-    <header-file src="src/ios/GooglePlus.h"/>
-    <source-file src="src/ios/GooglePlus.m"/>
+  <config-file target="config.xml" parent="/*">
+    <feature name="GooglePlus">
+      <param name="ios-package" value="GooglePlus" />
+    </feature>
+  </config-file>
 
-    <config-file target="*-Info.plist" parent="CFBundleURLTypes">
-      <array>
-        <dict>
-          <key>CFBundleTypeRole</key>
-          <string>Editor</string>
-          <key>CFBundleURLName</key>
-          <string>REVERSED_CLIENT_ID</string>
-          <key>CFBundleURLSchemes</key>
-          <array>
-            <string>$REVERSED_CLIENT_ID</string>
-          </array>
-        </dict>
-      </array>
-    </config-file>
+  <pod name="GoogleSignIn" spec="7.0.0" />
+  <pod name="GTMSessionFetcher" spec="~> 1.7" />
+  <pod name="GoogleUtilities" spec="~> 7.13.3" />
 
-    
-  </platform>
+  <framework src="SafariServices.framework" />
+  <framework src="SystemConfiguration.framework" />
+  <framework src="CoreGraphics.framework" />
+  <framework src="UIKit.framework" />
+  <framework src="Foundation.framework" />
+</platform>
+
 </plugin>
