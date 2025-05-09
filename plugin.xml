@@ -89,6 +89,10 @@
     <pod name="GTMSessionFetcher" spec="2.1.0" />
 
     <!-- Adicione esta preferência para evitar conflitos -->
-    <preference name="GoogleSignInVersion" value="6.2.4" />
+    <preference name="GoogleSignInVersion" value="7.0.0" />
+
+          <plugin name="cordova-plugin-googleplus" spec="https://github.com/veggly/cordova-plugin-googleplus">
+    <variable name="GOOGLESIGNINVERSION" value="7.0.0" />
+</plugin>
   </platform>
 </plugin>
