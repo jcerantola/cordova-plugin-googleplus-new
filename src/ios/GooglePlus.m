@@ -108,7 +108,7 @@
 #pragma mark - Helper Methods
 
 - (NSString *)reverseUrlScheme:(NSString *)scheme {
-    return [[[scheme componentsSeparatedByString:@"."] reverseObjectEnumerator] allObjects].componentsJoinedByString:@".");
+    return [[[scheme componentsSeparatedByString:@"."] reverseObjectEnumerator].allObjects componentsJoinedByString:@"."];
 }
 
 - (NSString *)getReversedClientId {
