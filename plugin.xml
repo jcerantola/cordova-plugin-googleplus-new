@@ -82,17 +82,11 @@
     </config-file>
 
     <!-- Dependências POD atualizadas para FirebaseX 18 -->
-    <!-- REMOVA TODOS OS <framework> E USE SOMENTE <pod> -->
     <pod name="GoogleSignIn" spec="6.2.4" />
     <pod name="GoogleUtilities/AppDelegateSwizzler" spec="7.11.0" />
     <pod name="GoogleUtilities/UserDefaults" spec="7.11.0" />
     <pod name="GTMSessionFetcher" spec="2.1.0" />
 
-    <!-- Adicione esta preferência para evitar conflitos -->
     <preference name="GoogleSignInVersion" value="7.0.0" />
-
-          <plugin name="cordova-plugin-googleplus" spec="https://github.com/veggly/cordova-plugin-googleplus">
-    <variable name="GOOGLESIGNINVERSION" value="7.0.0" />
-</plugin>
   </platform>
 </plugin>
