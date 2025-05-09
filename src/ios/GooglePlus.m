@@ -1,143 +1,102 @@
 #import "GooglePlus.h"
-@import GoogleUtilities;  // Adicionado para melhor integração
+#import <Cordova/CDV.h>
+#import <GoogleSignIn/GoogleSignIn.h>
 
 @implementation GooglePlus {
-    GIDSignIn *_signInInstance;  // Instância própria para evitar conflitos
+    GIDConfiguration *_gidConfig;
 }
 
-#pragma mark - Plugin Lifecycle
-
 - (void)pluginInitialize {
-    NSLog(@"GooglePlus pluginInitialize");
-    _signInInstance = [GIDSignIn sharedInstance];
-    _signInInstance.presentingViewController = self.viewController;
-    
-    // Configuração adicional para coexistência com Firebase
-    if ([GIDSignIn respondsToSelector:@selector(setSharedInstance:)]) {
-        [GIDSignIn performSelector:@selector(setSharedInstance:) withObject:_signInInstance];
+    NSString *clientID = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CLIENT_ID"];
+    if (clientID) {
+        _gidConfig = [[GIDConfiguration alloc] initWithClientID:clientID];
     }
 }
 
-#pragma mark - URL Handling
+- (void)login:(CDVInvokedUrlCommand *)command {
+    if (!_gidConfig) {
+        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Missing CLIENT_ID"];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        return;
+    }
 
-- (BOOL)handleURL:(NSURL*)url {
-    return [_signInInstance handleURL:url];
+    __weak typeof(self) weakSelf = self;
+
+    [GIDSignIn.sharedInstance signInWithConfiguration:_gidConfig
+                         presentingViewController:self.viewController
+                                         callback:^(GIDGoogleUser * _Nullable user, NSError * _Nullable error) {
+        CDVPluginResult *result;
+
+        if (error) {
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:error.localizedDescription];
+        } else {
+            NSDictionary *userInfo = @{
+                @"email": user.profile.email ?: @"",
+                @"userId": user.userID ?: @"",
+                @"displayName": user.profile.name ?: @"",
+                @"givenName": user.profile.givenName ?: @"",
+                @"familyName": user.profile.familyName ?: @"",
+                @"idToken": user.authentication.idToken ?: @"",
+                @"serverAuthCode": user.serverAuthCode ?: @""
+            };
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:userInfo];
+        }
+
+        [weakSelf.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+    }];
 }
 
-#pragma mark - Public Methods
+- (void)trySilentLogin:(CDVInvokedUrlCommand *)command {
+    if (!_gidConfig) {
+        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Missing CLIENT_ID"];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        return;
+    }
 
-- (void)isAvailable:(CDVInvokedUrlCommand*)command {
-    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:YES];
+    __weak typeof(self) weakSelf = self;
+    [GIDSignIn.sharedInstance restorePreviousSignInWithCallback:^(GIDGoogleUser * _Nullable user, NSError * _Nullable error) {
+        CDVPluginResult *result;
+
+        if (error || !user) {
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"No previous session"];
+        } else {
+            NSDictionary *userInfo = @{
+                @"email": user.profile.email ?: @"",
+                @"userId": user.userID ?: @"",
+                @"displayName": user.profile.name ?: @"",
+                @"givenName": user.profile.givenName ?: @"",
+                @"familyName": user.profile.familyName ?: @"",
+                @"idToken": user.authentication.idToken ?: @"",
+                @"serverAuthCode": user.serverAuthCode ?: @""
+            };
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:userInfo];
+        }
+
+        [weakSelf.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+    }];
+}
+
+- (void)logout:(CDVInvokedUrlCommand *)command {
+    [GIDSignIn.sharedInstance signOut];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-- (void)login:(CDVInvokedUrlCommand*)command {
-    self.callbackId = command.callbackId;
-    NSDictionary* options = command.arguments[0];
-    
-    NSString *reversedClientId = [self getReversedClientId];
-    if (!reversedClientId) {
-        [self sendErrorResult:@"Could not find REVERSED_CLIENT_ID url scheme in app .plist"];
-        return;
-    }
-
-    GIDConfiguration *config = [[GIDConfiguration alloc] 
-        initWithClientID:[self reverseUrlScheme:reversedClientId]
-        serverClientID:options[@"webClientId"] ?: @""
-        hostedDomain:options[@"hostedDomain"] ?: @""
-        openIDRealm:nil];
-
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [_signInInstance signInWithConfiguration:config
-                       presentingViewController:[self viewController]
-                                     callback:^(GIDGoogleUser * _Nullable user, NSError * _Nullable error) {
-            [self handleSignInResultWithUser:user error:error];
-        }];
-    });
-}
-
-#pragma mark - Authentication Handlers
-
-- (void)trySilentLogin:(CDVInvokedUrlCommand*)command {
-    self.callbackId = command.callbackId;
-    
-    [_signInInstance restorePreviousSignInWithCallback:^(GIDGoogleUser * _Nullable user, NSError * _Nullable error) {
-        [self handleSignInResultWithUser:user error:error];
-    }];
-}
-
-- (void)handleSignInResultWithUser:(GIDGoogleUser *)user error:(NSError *)error {
-    if (error || !user) {
-        [self sendErrorResult:error ? error.localizedDescription : @"Unknown error"];
-        return;
-    }
-    
-    NSDictionary *authData = @{
-        @"email": user.profile.email ?: @"",
-        @"idToken": user.authentication.idToken ?: @"",
-        @"accessToken": user.authentication.accessToken ?: @"",
-        @"refreshToken": user.authentication.refreshToken ?: @"",
-        @"serverAuthCode": user.serverAuthCode ?: @"",
-        @"userId": user.userID ?: @"",
-        @"displayName": user.profile.name ?: @"",
-        @"givenName": user.profile.givenName ?: @"",
-        @"familyName": user.profile.familyName ?: @"",
-        @"imageUrl": user.profile.hasImage ? [[user.profile imageURLWithDimension:120] absoluteString] : @""
-    };
-    
-    [self sendSuccessResult:authData];
-}
-
-#pragma mark - Logout Methods
-
-- (void)logout:(CDVInvokedUrlCommand*)command {
-    [_signInInstance signOut];
-    [self sendSuccessResult:@"logged out" forCommand:command];
-}
-
-- (void)disconnect:(CDVInvokedUrlCommand*)command {
-    [_signInInstance disconnectWithCallback:^(NSError * _Nullable error) {
+- (void)disconnect:(CDVInvokedUrlCommand *)command {
+    [GIDSignIn.sharedInstance disconnectWithCallback:^(NSError * _Nullable error) {
+        CDVPluginResult *result;
         if (error) {
-            [self sendErrorResult:error.localizedDescription forCommand:command];
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:error.localizedDescription];
         } else {
-            [self sendSuccessResult:@"disconnected" forCommand:command];
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         }
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
 }
 
-#pragma mark - Helper Methods
-
-- (NSString *)reverseUrlScheme:(NSString *)scheme {
-    return [[[scheme componentsSeparatedByString:@"."] reverseObjectEnumerator].allObjects componentsJoinedByString:@"."];
-}
-
-- (NSString *)getReversedClientId {
-    for (NSDictionary *dict in [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleURLTypes"]) {
-        if ([dict[@"CFBundleURLName"] isEqualToString:@"REVERSED_CLIENT_ID"]) {
-            return [dict[@"CFBundleURLSchemes"] firstObject];
-        }
-    }
-    return nil;
-}
-
-- (void)sendSuccessResult:(id)message {
-    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message] 
-                                callbackId:self.callbackId];
-}
-
-- (void)sendErrorResult:(NSString *)message {
-    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:message]
-                                callbackId:self.callbackId];
-}
-
-- (void)sendSuccessResult:(id)message forCommand:(CDVInvokedUrlCommand*)command {
-    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:message]
-                                callbackId:command.callbackId];
-}
-
-- (void)sendErrorResult:(NSString *)message forCommand:(CDVInvokedUrlCommand*)command {
-    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:message]
-                                callbackId:command.callbackId];
+- (void)share_unused:(CDVInvokedUrlCommand *)command {
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Not implemented"];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 @end
