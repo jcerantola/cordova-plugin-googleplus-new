@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-plugin-googleplus"
-        version="8.5.8">
+        version="8.5.9-fixed">
 
   <name>Google SignIn</name>
   <description>Google Sign-In plugin compatível com FirebaseX 18+</description>
@@ -19,21 +19,6 @@
     <engine name="cordova-android" version=">=10.0.0"/>
   </engines>
 
-  <platform name="android">
-    <preference name="PLAY_SERVICES_VERSION" default="21.0.1"/>
-    <framework src="com.google.android.gms:play-services-auth:$PLAY_SERVICES_VERSION"/>
-    <framework src="com.google.android.gms:play-services-identity:$PLAY_SERVICES_VERSION"/>
-    <config-file target="res/xml/config.xml" parent="/*">
-      <feature name="GooglePlus">
-        <param name="android-package" value="nl.xservices.plugins.GooglePlus"/>
-        <param name="onload" value="true"/>
-      </feature>
-      <access origin="https://accounts.google.com/*"/>
-    </config-file>
-    <source-file src="src/android/GooglePlus.java" target-dir="src/nl/xservices/plugins"/>
-  </platform>
-
-  <!-- iOS Platform - VERSÃO COMPATÍVEL COM FIREBASEX 18 -->
   <platform name="ios">
     <config-file target="config.xml" parent="/*">
       <feature name="GooglePlus">
@@ -46,8 +31,8 @@
     <source-file src="src/ios/GooglePlus.m"/>
 
     <preference name="REVERSED_CLIENT_ID" />
+    <preference name="GOOGLESIGNINVERSION" default="7.0.0" />
 
-    <!-- Configurações de URL Scheme -->
     <config-file target="*-Info.plist" parent="CFBundleURLTypes">
       <array>
         <dict>
@@ -69,24 +54,9 @@
       </array>
     </config-file>
 
-    <!-- Configurações de entitlements -->
-    <config-file target="*-Debug.entitlements" parent="com.apple.developer.sso" merge="merge">
-      <array>
-        <string>com.google.sso</string>
-      </array>
-    </config-file>
-    <config-file target="*-Release.entitlements" parent="com.apple.developer.sso" merge="merge">
-      <array>
-        <string>com.google.sso</string>
-      </array>
-    </config-file>
-
-    <!-- Dependências POD atualizadas para FirebaseX 18 -->
-    <pod name="GoogleSignIn" spec="6.2.4" />
+    <pod name="GoogleSignIn" spec="$GOOGLESIGNINVERSION" />
+    <pod name="GTMSessionFetcher" spec="2.1.0" />
     <pod name="GoogleUtilities/AppDelegateSwizzler" spec="7.11.0" />
     <pod name="GoogleUtilities/UserDefaults" spec="7.11.0" />
-    <pod name="GTMSessionFetcher" spec="2.1.0" />
-
-    <preference name="GoogleSignInVersion" value="7.0.0" />
   </platform>
 </plugin>
