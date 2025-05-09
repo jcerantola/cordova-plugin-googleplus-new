@@ -90,7 +90,5 @@
 
     <!-- Adicione esta preferência para evitar conflitos -->
     <preference name="GoogleSignInVersion" value="6.2.4" />
-
-<resource-file src="src/ios/GoogleSignIn.bundle" target="GoogleSignIn.bundle" />
   </platform>
 </plugin>
